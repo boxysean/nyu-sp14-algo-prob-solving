@@ -7,14 +7,18 @@
 # | each other, find if there are similarlities    |
 # | worth getting people in trouble for!           |
 # +------------------------------------------------+
- 
+
+import glob
+import subprocess
 import sys
 from bs4 import BeautifulSoup
 import urllib, urllib2
 import simplejson as json
 import os
+import webbrowser
 
 print "arguments:", str(sys.argv[1:])
+
 
 contest_id = 38690
 
@@ -100,3 +104,31 @@ for (name, problem_id), (submission_id, language) in answers.iteritems():
 	solution_file = open(solution_file_path, "w")
 	solution_file.write(solution_code)
 	solution_file.close()
+
+# Run moss
+
+cpp_output = subprocess.check_output(["./moss", "-l", "cc"]+glob.glob("homework/"+str(contest_id)+"/*.cpp")).split("\n")
+
+for line in cpp_output:
+    print line
+
+java_output = subprocess.check_output(["./moss", "-l", "java"]+glob.glob("homework/"+str(contest_id)+"/*.java")).split("\n")
+
+for line in java_output:
+    print line
+
+c_output = subprocess.check_output(["./moss", "-l", "c"]+glob.glob("homework/"+str(contest_id)+"/*.c")).split("\n")
+
+for line in c_output:
+    print line
+
+cpp_output.reverse()
+java_output.reverse()
+c_output.reverse()
+
+moss_output = [java_output[1],cpp_output[1], c_output[1]]
+
+# Do stuff with moss_output
+
+for res_url in moss_output:
+    webbrowser.open(res_url)
