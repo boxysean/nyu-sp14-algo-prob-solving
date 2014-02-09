@@ -17,21 +17,27 @@ import simplejson as json
 import os
 import webbrowser
 
+import optparse
+
 print "arguments:", str(sys.argv[1:])
 
+if len(sys.argv) < 2:
+	print "usage: python check_homework.py <contest id>"
+	sys.exit()
 
-contest_id = 38690
+contest_id = sys.argv[1]
 
 def parse_language(lang):
-	print "lang:", lang
-	if "C++" in lang or "G++" in lang:
-		return "cpp"
-	elif "Java" in lang:
-		return "java"
-	elif "C" in lang:
-		return "c"
-	else:
-		return "unknown"
+	res = "unknown"
+	lang = lang.lower()
+	if "c++" in lang or "g++" in lang:
+		res = "cpp"
+	elif "java" in lang:
+		res = "java"
+	elif "c" in lang:
+		res = "c"
+	print lang, "parses to", res
+	return res
 
 # Download website
 #url = "http://acm.hust.edu.cn/vjudge/contest/view.action?cid=38690#status"
