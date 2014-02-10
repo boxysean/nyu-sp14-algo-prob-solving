@@ -20,8 +20,11 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("contest_id", nargs = 1, type = int, help = "Hust Judge Contest ID - Required")
-parser.add_argument( "--moss",  type = bool, default = True, help = "Set false to skip uploading results to moss")
-parser.add_argument( "--download",  type = bool, default = True, help = "Set false to skip downloading files from Hust")
+parser.add_argument( "--moss", dest = "moss", action = "store_true")
+parser.add_argument( "--no-moss", dest = "moss", action = "store_false")
+parser.add_argument( "--download", dest = "download", action = "store_true")
+parser.add_argument( "--no-download", dest = "download", action = "store_false")
+parser.set_defaults(moss = True, download = True)
 
 contest_id = parser.parse_args().contest_id[0]
 
@@ -116,18 +119,22 @@ def download_solutions():
 
 # Run moss
 def upload_moss():
+
+    moss_output = []
+
     try:
+        print "Mossing C++:"
         cpp_output = subprocess.check_output(["./moss", "-l", "cc"]+glob.glob("homework/"+str(contest_id)+"/*.cpp")).split("\n")
-        moss_output = []
 
         cpp_output.reverse()
         moss_output += [cpp_output[1]]
         print "C++: ", cpp_output[1]
 
     except Exception, e:
-        print "Moss Failed for C++!! But maybe there weren't any?"
+        print "Moss Failed for C++!"
 
     try:
+        print "Mossing Java:"
         java_output = subprocess.check_output(["./moss", "-l", "java"]+glob.glob("homework/"+str(contest_id)+"/*.java")).split("\n")
 
         java_output.reverse()
@@ -135,24 +142,24 @@ def upload_moss():
         print "Java: ", java_output[1]
 
     except Exception, e:
-        print "Moss Failed for Java!! But maybe there weren't any?"
+        print "Moss Failed for Java!"
 
     try:
+        print "Mossing C:"
         c_output = subprocess.check_output(["./moss", "-l", "c"]+glob.glob("homework/"+str(contest_id)+"/*.c")).split("\n")
 
         c_output.reverse()
         moss_output += [c_output[1]]
         print "C: ", c_output[1]
     except Exception, e:
-        print "Moss Failed for C!! But maybe there weren't any?"
-
-
-
+        print "Moss Failed for C!"
 
 # Do stuff with moss_output
 
     for res_url in moss_output:
         webbrowser.open(res_url)
+
+#print parser.parse_args()
 
 if parser.parse_args().download:
     download_solutions()
