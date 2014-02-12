@@ -17,6 +17,7 @@ import simplejson as json
 import os
 import webbrowser
 import argparse
+import requests
 
 parser = argparse.ArgumentParser()
 parser.add_argument("contest_id", nargs = 1, type = int, help = "Hust Judge Contest ID - Required")
@@ -28,7 +29,6 @@ parser.set_defaults(moss = True, download = True)
 
 contest_id = parser.parse_args().contest_id[0]
 
-print contest_id
 
 def parse_language(lang):
 	res = "unknown"
@@ -81,6 +81,12 @@ def download_solutions():
 
     answers = {}
 
+#use requests.session to keep cookies
+
+    session = requests.session()
+    print session.post("http://acm.hust.edu.cn/vjudge/user/login.action",
+            data = {"username" : "CS480Admin" , "password" : "1491625"} ).text
+
     for a in accepted:
         submission_id = a[0]
         name = a[1]
@@ -103,18 +109,21 @@ def download_solutions():
     for (name, problem_id), (submission_id, language) in answers.iteritems():
         print name, problem_id, submission_id
         solution_url = "http://acm.hust.edu.cn/vjudge/contest/viewSource.action?id=" + str(submission_id)
-        solution_headers = { "User-Agent": "Mozilla/5.0" }
+        #solution_headers = { "User-Agent": "Mozilla/5.0" }
 
-        req = urllib2.Request(solution_url, headers=solution_headers)
-        res = urllib2.urlopen(req)
-        content = res.read()
+        #req = urllib2.Request(solution_url, headers=solution_headers)
+        #res = urllib2.urlopen(req)
+        #content = res.read()
+
+        req = session.get(solution_url)
+        content = req.text
 
         soup = BeautifulSoup(content)
         solution_code = soup.pre.contents[0]
 
         solution_file_path = os.path.join(homework_dir, str(name) + "_" + str(problem_id) + "_" + str(contest_id) + "." + str(language))
         solution_file = open(solution_file_path, "w")
-        solution_file.write(solution_code)
+        solution_file.write(solution_code.encode("utf-8"))
         solution_file.close()
 
 # Run moss
@@ -135,7 +144,7 @@ def upload_moss():
 
     try:
         print "Mossing Java:"
-        java_output = subprocess.check_output(["./moss", "-l", "java"]+glob.glob("homework/"+str(contest_id)+"/*.java")).split("\n")
+        java_output = subprocess.check_output(["./moss","-b", "base.java", "-l", "java" ]+glob.glob("homework/"+str(contest_id)+"/*.java")).split("\n")
 
         java_output.reverse()
         moss_output += [java_output[1]]
@@ -146,7 +155,7 @@ def upload_moss():
 
     try:
         print "Mossing C:"
-        c_output = subprocess.check_output(["./moss", "-l", "c"]+glob.glob("homework/"+str(contest_id)+"/*.c")).split("\n")
+        c_output = subprocess.check_output(["./moss", "-l", "c",]+glob.glob("homework/"+str(contest_id)+"/*.c")).split("\n")
 
         c_output.reverse()
         moss_output += [c_output[1]]
