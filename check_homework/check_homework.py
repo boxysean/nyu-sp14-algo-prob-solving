@@ -29,23 +29,33 @@ parser.set_defaults(moss = True, download = True)
 
 contest_id = parser.parse_args().contest_id[0]
 
+results = {}
+moss_urls = {}
 
 def parse_language(lang):
 	res = "unknown"
 	lang = lang.lower()
 	if "c++" in lang or "g++" in lang:
 		res = "cpp"
-	elif "java" or "JAVA" in lang:
+	elif "java" in lang or "JAVA" in lang:
 		res = "java"
-	elif "c" or "C" in lang:
-		res = "c"
+	elif "c" in lang or "C" in lang:
+		res = "cpp"
 	print lang, "parses to", res
 	return res
 
+# Make a folder for this homework set
 
-# Download website
+homework_dir = os.path.join("homework", str(contest_id))
+
+if not os.path.exists(homework_dir):
+    os.makedirs(homework_dir)
+
+
 
 def download_solutions():
+
+# Download website
 #url = "http://acm.hust.edu.cn/vjudge/contest/view.action?cid=38690#status"
     url = "http://acm.hust.edu.cn/vjudge/contest/fetchStatus.action?cid=" + str(contest_id)
 
@@ -97,17 +107,15 @@ def download_solutions():
 
     print "Number of non-duplicate answers:", len(answers)
 
-# Make a folder for this homework set
-
-    homework_dir = os.path.join("homework", str(contest_id))
-
-    if not os.path.exists(homework_dir):
-        os.makedirs(homework_dir)
 
 # Download all the accepted answers
 
     for (name, problem_id), (submission_id, language) in answers.iteritems():
         print name, problem_id, submission_id
+        if name not in results:
+            results[name] = []
+        results[name] += str(problem_id)
+
         solution_url = "http://acm.hust.edu.cn/vjudge/contest/viewSource.action?id=" + str(submission_id)
         #solution_headers = { "User-Agent": "Mozilla/5.0" }
 
@@ -126,47 +134,32 @@ def download_solutions():
         solution_file.write(solution_code.encode("utf-8"))
         solution_file.close()
 
+    session.close()
+
+
 # Run moss
-def upload_moss():
+def upload_moss(language):
 
     moss_output = []
+    moss_lang = language
+    if moss_lang is "cpp":
+        moss_lang = "cc"
 
     try:
-        print "Mossing C++:"
-        cpp_output = subprocess.check_output(["./moss", "-l", "cc"]+glob.glob("homework/"+str(contest_id)+"/*.cpp")).split("\n")
+        print "Mossing ",language,":"
+        output = subprocess.check_output(["./moss", "-l", moss_lang]+glob.glob(os.path.join(homework_dir,"*."+language))).split("\n")
+        combined_output = subprocess.check_output(["./moss", "-l", moss_lang]+glob.glob(os.path.join(homework_dir,"*","*."+language))+glob.glob(os.path.join(homework_dir,"*."+language))).split("\n")
 
-        cpp_output.reverse()
-        moss_output += [cpp_output[1]]
-        print "C++: ", cpp_output[1]
-
-    except Exception, e:
-        print "Moss Failed for C++!"
-
-    try:
-        print "Mossing Java:"
-        java_output = subprocess.check_output(["./moss","-b", "base.java", "-l", "java" ]+glob.glob("homework/"+str(contest_id)+"/*.java")).split("\n")
-
-        java_output.reverse()
-        moss_output += [java_output[1]]
-        print "Java: ", java_output[1]
+        print "mossed"
+        output.reverse()
+        combined_output.reverse()
+        moss_output += [output[1]] + [combined_output[1]]
+        print "added"
+        moss_urls[language] = output[1]
+        moss_urls[language +" with samples"] = combined_output[1]
 
     except Exception, e:
-        print "Moss Failed for Java!"
-
-    try:
-        print "Mossing C:"
-        c_output = subprocess.check_output(["./moss", "-l", "c",]+glob.glob("homework/"+str(contest_id)+"/*.c")).split("\n")
-
-        c_output.reverse()
-        moss_output += [c_output[1]]
-        print "C: ", c_output[1]
-    except Exception, e:
-        print "Moss Failed for C!"
-
-# Do stuff with moss_output
-
-    for res_url in moss_output:
-        webbrowser.open(res_url)
+        print "Moss Failed for "+language+"!"
 
 #print parser.parse_args()
 
@@ -174,4 +167,21 @@ if parser.parse_args().download:
     download_solutions()
 
 if parser.parse_args().moss:
-    upload_moss()
+    upload_moss("java")
+    upload_moss("cpp")
+    upload_moss("c")
+
+student_keylist = results.keys()
+student_keylist.sort()
+url_keylist = moss_urls.keys()
+url_keylist.sort()
+
+output_file = open(os.path.join(homework_dir,"results.txt"),"w")
+output_file.write("CS80S14 Grader Results For Contest " + str(contest_id)+"\n\nMoss Results\n")
+
+for key in url_keylist:
+    output_file.write(key + ": " + moss_urls[key] + "\n")
+
+output_file.write("\nStudent Results\n")
+for student in student_keylist:
+    output_file.write(student + " " + str(len(results[student]))+"\n")

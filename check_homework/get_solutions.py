@@ -4,35 +4,49 @@ import bs4
 import re
 import glob
 import subprocess
+import urllib, urllib2
+import json
+import argparse
 
 
-homework_dir = "homework"
+parser = argparse.ArgumentParser()
+parser.add_argument("contest_id", nargs = 1, type = int, help = "Hust Judge Contest ID - Required")
+parser.add_argument("judge_id", nargs = 1, type = str, help = "Hust Judge ID - Required")
+parser.add_argument("prob_id", nargs = 1, type = int, help = "Hust Judge Prob ID - Required")
+parser.add_argument("prob_letter", nargs = 1, type = str, help = "Problem Letter in Contest - Required")
+
+args = parser.parse_args()
+
+homework_dir = os.path.join("homework",str(args.contest_id[0]))
 
 def parse_language(lang):
-	res = "unknown"
-	lang = lang.lower()
-	if "c++" in lang or "g++" in lang:
-		res = "cpp"
-	elif "java" or "JAVA" in lang:
-		res = "java"
-	elif "c" or "C" in lang:
-		res = "c"
-	return res
+    res = "unknown"
+    lang = lang.lower()
+    if "c++" in lang or "g++" in lang:
+        res = "cpp"
+    elif "java" in lang or "JAVA" in lang:
+        res = "java"
+    elif "c" in lang or "C" in lang:
+        res = "cpp"
+    print lang, " parses to ", res
+    return res
 
 def get_samples(judge_id, prob_id, contest_id, students_files = [], max_downloads = -1):
 
+
     session = requests.session()
+    print session.post("http://acm.hust.edu.cn/vjudge/user/login.action",
+            data = {"username" : "CS480Admin" , "password" : "1491625"} ).text
 
 #get list of sample solutions
     sample_data = {"sEcho":"2", "iColumns":"15", "sColumns":"", "iDisplayStart":"0", "iDisplayLength":"9999999", "mDataProp_0":"0", "mDataProp_1":"1", "mDataProp_2":"2", "mDataProp_3":"3", "mDataProp_4":"4", "mDataProp_5":"5", "mDataProp_6":"6", "mDataProp_7":"7", "mDataProp_8":"8", "mDataProp_9":"9", "mDataProp_10":"10", "mDataProp_11":"11", "mDataProp_12":"12", "mDataProp_13":"13", "mDataProp_14":"14", "un":"", "OJId":judge_id, "probNum":str(prob_id), "res":"1"} #res 1 = accepted
-    sample_headers = { "User-Agent": "Mozilla/5.0","Referer:http":"//acm.hust.edu.cn/vjudge/problem/status.action"}
+    sample_headers = { "User-Agent": "Mozilla/5.0"}
     sample_res = session.post("http://acm.hust.edu.cn/vjudge/problem/fetchStatus.action", data=sample_data, headers=sample_headers)
     sample_solutions =  sample_res.json()["aaData"]
 
-    sample_fnames = []
 
 #save sample solutions that we can access
-    sample_solution_dir = os.path.join(homework_dir, str(contest_id), judge_id+str(prob_id), "sample_solutions")
+    sample_solution_dir = os.path.join(homework_dir, judge_id+str(prob_id))
     if not os.path.exists(sample_solution_dir):
         os.makedirs(sample_solution_dir)
 
@@ -40,26 +54,28 @@ def get_samples(judge_id, prob_id, contest_id, students_files = [], max_download
         sample_solution_res = session.get("http://acm.hust.edu.cn/vjudge/problem/viewSource.action?id="+str(sol[0]))
         sample_solution_soup = bs4.BeautifulSoup(sample_solution_res.text)
         sample_solution_filename = sol[1]+"."+parse_language(sol[6])
+        sample_solution_filename_student = sol[1]+"_"+args.prob_letter[0]+"_"+str(args.contest_id[0])+"."+parse_language(sol[6])
+        sample_solution_path = os.path.join(sample_solution_dir, sample_solution_filename)
+        path_if_student = os.path.join(homework_dir, sample_solution_filename_student)
 
-        if not sample_solution_soup.pre is None and not sample_solution_filename in students_files and not max_downloads == 0:
+        if sample_solution_soup.pre and not str(path_if_student) in students_files and not max_downloads == 0:
             max_downloads -= 1
-            sample_fnames += sample_solution_filename
             print "Downloading", sample_solution_filename, "...",
-            sample_solution_path = os.path.join(sample_solution_dir, sample_solution_filename)
             sample_solution_file = open(sample_solution_path, "w")
             sample_solution_file.write(sample_solution_soup.pre.contents[0].encode("utf-8"))
             sample_solution_file.close()
             print "Done."
 
     session.close()
+    moss_filter(50, sample_solution_dir, "java")
+    moss_filter(50, sample_solution_dir, "cpp")
+    #moss_filter(50, sample_solution_dir, "c")
 
-    return sample_fnames
 
 def moss_filter(percentage_threshhold, directory, language):
-
 #upload all files in directory with given language to moss, delete any with match higher than threshhold
     try:
-        files = glob.glob(directory+"/*."+language)
+        files = glob.glob(os.path.join(directory,"*."+language))
         moss_output = subprocess.check_output(["./moss", "-l", "c","-m",str(len(files))]+files).split("\n")
         moss_output.reverse()
     except Exception, e:
@@ -93,51 +109,5 @@ def moss_filter(percentage_threshhold, directory, language):
             print index*2-2, moss_matches[2*index-2]
             print index*2-1, moss_matches[2*index-1]
 
-def download_submissions(contest_id, username, password):
+get_samples(args.judge_id[0], args.prob_id[0], args.contest_id[0], students_files = glob.glob(os.path.join(str(homework_dir),"*")), max_downloads = 100)
 
-    contest_status = requests.get("http://acm.hust.edu.cn/vjudge/contest/view.action?cid=" + str(contest_id) + "#status")
-    num_problems = len(str(bs4.BeautifulSoup(contest_status.text).findAll("select")[1]).split("\n"))-2
-    file_names = []
-
-    session = requests.session()
-    session.post("http://acm.hust.edu.cn/vjudge/user/login.action", data = {"username" : username , "password" : password} )
-
-    for problem_number in range(1,2):
-
-        data = {"cid":str(contest_id),"sEcho":"2", "iColumns":"13", "sColumns":"", "iDisplayStart":"0", "iDisplayLength":"9999999", "mDataProp_0":"0", "mDataProp_1":"1", "mDataProp_2":"2", "mDataProp_3":"3", "mDataProp_4":"4", "mDataProp_5":"5", "mDataProp_6":"6", "mDataProp_7":"7", "mDataProp_8":"8", "mDataProp_9":"9", "mDataProp_10":"10", "mDataProp_11":"11", "mDataProp_12":"12", "un":"", "num":str(chr(65+problem_number)), "res":"1", "sEcho":"2"}
-        #data = { "sEcho": 1, "iColumns": "13", "sColumns": "", "iDisplayStart": "0", "iDisplayLength": "999999", "mDataProp_0": "0", "mDataProp_1": "1", "mDataProp_2": "2", "mDataProp_3": "3", "mDataProp_4": "4", "mDataProp_5": "5", "mDataProp_6": "6", "mDataProp_7": "7", "mDataProp_8": "8", "mDataProp_9": "9", "mDataProp_10": "10", "mDataProp_11": "11", "mDataProp_12": "12", "un": "", "num": "-", "res": "0" }
-        headers = { "User-Agent": "Mozilla/5.0","Referer:http":"http://acm.hust.edu.cn/vjudge/contest/view.action?cid=" + str(contest_id)}
-        res = session.post("http://acm.hust.edu.cn/vjudge/problem/fetchStatus.action?cid="+str(contest_id), data=data, headers=headers)
-        #res = requests.get("http://acm.hust.edu.cn/vjudge/contest/view.action?cid=" + str(contest_id) + "#status//"+str(chr(65+problem_number))+"/1", data=data, headers=headers)
-        print res.text
-        solutions =  res.json()["aaData"]
-        print solutions
-
-
-#save sample solutions that we can access
-        solution_dir = os.path.join(homework_dir, str(contest_id), judge_id+str(prob_id), "student_solutions")
-        if not os.path.exists(solution_dir):
-            os.makedirs(solution_dir)
-
-        for sol in solutions:
-            solution_res = session.get("http://acm.hust.edu.cn/vjudge/problem/viewSource.action?id="+str(sol[0]))
-            solution_soup = bs4.BeautifulSoup(solution_res.text)
-            solution_filename = sol[1]+"."+parse_language(sol[6])
-
-            if not solution_soup.pre is None and not solution_filename in students_files and not max_downloads == 0:
-                max_downloads -= 1
-                fnames += solution_filename
-                print "Downloading", solution_filename, "...",
-                solution_path = os.path.join(solution_dir, solution_filename)
-                solution_file = open(solution_path, "w")
-                solution_file.write(solution_soup.pre.contents[0].encode("utf-8"))
-                solution_file.close()
-                print "Done."
-
-        session.close()
-
-        return fnames
-
-#get_samples("UVA",100,1234,["sususu.java"],max_downloads = 100)
-#moss_filter(50,"homework/1234/UVA100/sample_solutions/","cpp")
-download_submissions(38690, "CS480Admin", "1491625")
