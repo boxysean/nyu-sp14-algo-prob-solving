@@ -361,7 +361,7 @@
 	<li> Checkers (diff=5): Standard DP on a DAG.  Just count the number
 	  of paths using memoization. </li>
 	<li> Arbitrage (diff=8): Slightly trickier Bellman Ford.  Test for
-	values above 1.1+1e-9 to avoid precision errors. </li>
+	values above 1.01+1e-9 to avoid precision errors. </li>
 	<li> Ants Colony (diff=9): Requires a highly tuned implementation of
 	  Tarjan's LCA algorithm (the union-find DFS one).  Don't
 	  reallocate any data structures unnecessarily, or 
