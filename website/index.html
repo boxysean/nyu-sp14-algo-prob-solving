@@ -340,7 +340,13 @@
 	<li> Traffic (diff=6): Use Bellman Ford and note that the edge weights
 	  are the differences in busyness cubed.  Correction to 
 	  problem statement: There may be multiple blank lines between
-	  each input test case.  Also, make sure to output '?' if the
+	  each input test case.  To address this, and any other
+	  weirdness, make the first line of your main while loop start
+	  with: 
+	  <pre>
+	    if (line.trim().length() == 0) continue;
+	  </pre>
+	  Also, make sure to output '?' if the
 	  cost is less than 3 or if the node is unreachable (negative
 	  infinity is less than 3 in case of a negative cycle).
 	  <a href="./ProgHW7/UVA10449Test2.in"> Additional
