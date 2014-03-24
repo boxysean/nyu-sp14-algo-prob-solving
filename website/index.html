@@ -173,11 +173,12 @@
       </ul>
     </li>    
     <li> Lecture 11 - Midterm. </li>
-    <li> <a href="./Lecture12.pdf">Lecture 12.</a> 
-    <li> <a href="./Lecture13.pdf">Lecture 13.</a> 
+    <li> <a href="./Lecture12.pdf">Lecture 12.</a> </li>
+    <li> <a href="./Lecture13.pdf">Lecture 13.</a> </li>
       <ul>
 	<li> <a href="./Lecture13Code/MapDemo.java">Grid graph processing code.</a> </li>
       </ul>
+    <li> <a href="./Lecture14.pdf">Lecture 14.</a> </li>
     <li> <a href="./Lecture15.pdf">Lecture 15.</a> 
       <ul>
 	<li><a href="./Lecture15Exercises.pdf">Lecture 15 Exercises</a></li>
@@ -319,12 +320,66 @@
 	  graph of reachable lock states. </li>
 	  <li>Place the Guards: Try to 2-color each component.
 	  Remember that each vertex must be guarded, so a component
-	  with 1 vertex needs a guard. </li>
+	  with 1 vertex needs a guard. <a href="./ProgHW6/UVA11080Test2.in"> Additional
+	      Sample Input</a> and <a href="./ProgHW6/UVA11080Test2.out"> Additional
+	      Sample Output</a>.</li>
 	  <li> Forwarding Emails: Sneaky DFS. </li>
 	  <li> Mall Mania: Multisource BFS. That is, add multiple
 	  items to the initial queue with distance zero.  Total grid
 	  is small.</li>
 	</ol>
+      </p>
+    </li>
+    <li>
+      <a href="http://acm.hust.edu.cn/vjudge/contest/view.action?cid=42233#overview">
+	Programming Homework 7</a> (graded out of 5).
+      <p>Hints (difficulties from 1 to 10):
+      <ol>
+	<li> Dark Roads (diff=4): Straightforward application of Kruskal's
+	algorithm. </li>
+	<li> Lift Hopping (diff=7): Run Dijkstra on the graph of
+	  (elevator,floor) pairs.  The queue is initialized with all
+	  pairs of the form (e,0) where elevator e can go to floor
+	  0. Remember that switching elevators requires 60 seconds.</li>
+	<li> Traffic (diff=6): Use Bellman Ford and note that the edge weights
+	  are the differences in busyness cubed.  Correction to 
+	  problem statement: There may be multiple blank lines between
+	  each input test case.  To address this, and any other
+	  weirdness, make the first line of your main while loop start
+	  with: 
+	  <pre>
+	    if (line.trim().length() == 0) continue;
+	  </pre>
+	  Also, make sure to output '?' if the
+	  cost is less than 3 or if the node is unreachable (negative
+	  infinity is less than 3 in case of a negative cycle).
+	  <a href="./ProgHW7/UVA10449Test2.in"> Additional
+	      Sample Input</a> and 
+	  <a href="./ProgHW7/UVA10449Test2.out"> Additional
+	      Sample Output</a>.
+	  <a href="./ProgHW7/UVA10449Test3.in"> Additional
+	      Sample Input 2</a> and 
+	  <a href="./ProgHW7/UVA10449Test3.out"> Additional
+	      Sample Output 2</a>.
+	</li>
+	<li> Commandos (diff=5): After running all pairs shortest path, the
+	  answer can be computed quickly. </li>
+	<li> Inspector's Dilemma (diff=6): For each connected component, count
+	  the number of odd degree nodes, and use what we learned
+	  about Eulerian graphs. 
+	  <a href="./ProgHW7/UVA12118Test2.in"> Additional
+	      Sample Input</a> and 
+	  <a href="./ProgHW7/UVA12118Test2.out"> Additional
+	      Sample Output</a>.
+	</li>
+	<li> Checkers (diff=5): Standard DP on a DAG.  Just count the number
+	  of paths using memoization. </li>
+	<li> Arbitrage (diff=8): Slightly trickier Bellman Ford.</li>
+	<li> Ants Colony (diff=9): Requires a highly tuned implementation of
+	  Tarjan's LCA algorithm (the union-find DFS one).  Don't
+	  reallocate any data structures unnecessarily, or 
+	  use any hashing. </li>
+      </ol>
       </p>
     </li>
   </ol>
