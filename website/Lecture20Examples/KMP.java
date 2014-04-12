@@ -15,6 +15,7 @@ public class KMP
 		}
 		return table;
 	}
+	/** Returns the final state when simulating the DFA built using pattern on the string text */
 	public static int simulate(int[] table, String pattern, String text)
 	{
 		int state = 0;
@@ -26,6 +27,7 @@ public class KMP
 				else if (state == 0) break;
 				state = table[state];
 			} 
+			if (state == table.length -1) break;
 		}
 		return state;
 	}
