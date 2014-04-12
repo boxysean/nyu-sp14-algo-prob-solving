@@ -203,7 +203,7 @@
 	<li><a href="./Lecture19Exercises.pdf">Lecture 19 Exercises</a></li>
       </ul>
     </li>
-    <li> Lecture 20
+    <li> <a href="./Lecture 20.pdf">Lecture 20.</a>
       <ul> 
 	<li> <a href="./Lecture20Examples/KMP.java"> KMP Java
 	Code </a>. </li>
@@ -476,7 +476,45 @@
       </p>
     </li>
     <li> <a href="http://acm.hust.edu.cn/vjudge/contest/view.action?cid=43967#overview">
-    Programming Homework 10 </a>. </li>
+    Programming Homework 10 (graded out of 5) </a>. </li>
+    <p>
+      Hints:
+      <ol>
+	<li> Where's Waldorf (diff=4): Brute force.  Just look in every
+	  possible spot, and every possible direction for each
+	  word. </li>
+	<li> Power Strings (diff=5): Can use brute force.  Test every
+	  possible substring of viable length.  Can also be done using
+	  the KMP table: for a string x, 
+	  find suffixes of x that are prefixes of x so that the
+	  remaining part has length dividing the length of x.</li>
+	<li> Extend to Palindrome (diff=6): You are looking for the
+	  longest suffix that is a palindrome.  To do this, find the
+	  longest suffix of the string that is a prefix of the
+	  reverse using KMP. </li>
+	<li> Glass Beads (diff=7): If the string is x, find the
+	  lexicographically first substring of xx (x concatenated with
+	  itself) of length |x|.  This can be done quickly with a
+	  suffix tree. </li>
+	<li> DNA Sequencing (diff=9): Build the generalized suffix
+	  tree of the two given strings.  Do one DFS to find the length
+	  of the longest common substring.  Then do another DFS to print
+	  all substrings that satisfy the requirement. The substrings in
+	  question will always correspond to nodes of the suffix
+	  tree.</li>
+	<li> GATTACA (diff=8): Build a suffix tree, and then DFS over
+	  the nodes to find the length of the longest repeated
+	  substring.  Then DFS one more time to output the
+	  lexicographically first one.  The answer will always be at a
+	  node of the tree. </li>
+	<li> Life Forms (diff=10): Build the generalized suffix tree
+	  for the given strings.  Do a DFS to find the length of the
+	  longest common substring to more than half.  Then DFS again
+	  to output them all.  They will always occur at nodes of the
+	  tree.
+	</li>
+      </ol>
+    </p>
   </ol>
 </div>
 
