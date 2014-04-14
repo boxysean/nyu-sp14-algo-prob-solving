@@ -7,11 +7,12 @@ public class KMP
 		for (int i = 2; i < table.length; ++i)
 		{
 			int j = table[i-1];
-			do
+			while (true) 
 			{
 				if (pattern.charAt(j) == pattern.charAt(i-1)) { table[i] = j+1; break;}
+				else if (j == 0) break;
 				else j = table[j];
-			} while (j != 0);
+			} 
 		}
 		return table;
 	}
