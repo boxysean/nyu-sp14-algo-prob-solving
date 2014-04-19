@@ -525,6 +525,38 @@
     </p>
     <li> <a href="http://acm.hust.edu.cn/vjudge/contest/view.action?cid=44404#overview">
 	Programming Homework 11 (graded out of 5) </a>. </li>
+    <p>
+      Hints:
+      <ol>
+	<li> Sunny Mountains (diff=4): Sort the coordinates by x, move
+	right-to-left and then compute the portion of each peak that
+	isn't blocked by earlier peaks. </li>
+	<li> Billiard Bounces (diff=3): Using kinematics, determine
+	  how far the ball will travel.  Then use the reflected boards
+	  discussed in class to compute the problem. </li>
+	<li> Nails (diff=3): Use the convex hull code to compute the
+	  perimeter of the convex hull.  Make sure to only read the
+	  number of lines specified by the problem, as their may be
+	  garbage data after the specified number of test cases. </li>
+	<li> Trash Removal (diff=6): First compute the convex hull.
+	  You may assume that one of the sides of the convex hull will
+	  be flush against the garbage chute.  Use an O(n^2) algorithm
+	  chute width considering all sides of the convex hull and all
+	  possible opposing points. </li>
+	<li> How Big Is It? (diff=7): First solve the 2 circle case.
+	  Then solve the n circle case by considering all possible
+	  permutations of the circles. Make sure to handle the cases
+	  2,.4,2 (giving 8), and .1,2,.1 (giving 4). </li>
+	<li> Colliding Traffic (diff=7): For each pair of boats,
+	  accurately solve a corresponding quadratic equation. </li>
+	<li> Center of Masses (diff=5): The points are in no
+	  particular order, so first compute their convex hull, and
+	  then use the centroid of a
+	  polygon <a href="http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon">
+	  formula </a>.  Code this one carefully, as the time limits
+	  are pretty strict. </li>
+      </ol>
+    </p>
   </ol>
 </div>
 

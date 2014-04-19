@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-
 public class Geometry
 {
 	static final double EPS = 1e-9;
@@ -47,15 +46,15 @@ public class Geometry
 	/** Area of the polygon given in al */
 	static double area(ArrayList<Point> al)
 	{
-		Point p = new Point(0,0);
 		int N = al.size();
+		if (N <= 2) return 0;
 		double ret = 0;
 		for (int i = 0; i < N; ++i)
 		{
 			int ii = (i+1)%N;
-			ret += cross(p,al.get(i),al.get(ii));
+			ret += al.get(i).x*al.get(ii).y-al.get(ii).x*al.get(i).y;
 		}
-		return Math.abs(ret);			
+		return ret/2;			
 	}
 	/** Perimeter of the polygon given in al */
 	static double perimeter(ArrayList<Point> al)
