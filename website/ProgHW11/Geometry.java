@@ -80,12 +80,14 @@ public class Geometry
 		@Override
 		public int compare(Point o1, Point o2)
 		{
-			double d1 = Math.hypot(o1.y-p.y, o1.x-p.x);
-			double d2 = Math.hypot(o2.y-p.y, o2.x-p.x);
-			if (isCollin(p,o1,o2)) return d1 < d2 ? -1 : d1 > d2 ? 1 : 0;
-			double a1 = Math.atan2(o1.y-p.y, o1.x-p.x);
-			double a2 = Math.atan2(o2.y-p.y, o2.x-p.x);
-			return a1 < a2 ? -1 : a1 > a2 ? 1 : 0;
+			double cr = cross(o1,p,o2);
+			if (Math.abs(cr) < EPS) 
+			{
+				double d1 = Math.hypot(o1.y-p.y, o1.x-p.x);
+				double d2 = Math.hypot(o2.y-p.y, o2.x-p.x);
+				return d1 < d2 ? -1 : d1 > d2 ? 1 : 0;
+			}
+			return cr >= 0 ? 1 : -1;
 		}
 	}
 	/** Convex hull */
