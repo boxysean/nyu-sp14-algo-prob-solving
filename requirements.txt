@@ -49,7 +49,7 @@ ssh-import-id==3.14
 system-service==0.1.6
 ubuntuone-storage-protocol==4.2.0
 unity-lens-photos==0.9
-urllib3==1.5
+urllib3==1.26.5
 virtualenv==1.9.1
 wsgiref==0.1.2
 xdiagnose==3.5
