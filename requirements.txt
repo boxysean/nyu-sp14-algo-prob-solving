@@ -39,7 +39,7 @@ pysmbc==1.0.13
 python-apt==0.8.8ubuntu6
 python-debian==0.1.21-nmu2ubuntu1
 pyxdg==0.25
-reportlab==2.6
+reportlab==3.5.55
 requests==1.1.0
 rhythmbox-ubuntuone==4.2.0
 sessioninstaller==0.0.0
